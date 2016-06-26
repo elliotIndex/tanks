@@ -65,7 +65,8 @@ class WelcomePage extends React.Component {
 
   render () {
     return (
-      <a-scene id='scene' physics='debug:false' vr-mode-ui='enabled: false'>
+      <a-scene id='scene' physics='debug:false' vr-mode-ui='enabled: false'
+      proxy-controller="pairCode: riachu; debug: true;">
         <a-assets>
           <WallMixin height={8}/>
           <Projectile />

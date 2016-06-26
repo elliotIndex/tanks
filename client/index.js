@@ -14,6 +14,10 @@ require('./aframeComponents/data-emitter');
 require('./aframeComponents/socket-controls');
 require('./aframeComponents/forward-movement-controls');
 require('./aframeComponents/death-listener');
+require('./aframeComponents/proxy-controller');
+
+// var ProxyControls = require('aframe-proxy-controls');
+// AFRAME.registerComponent('proxy-controls', ProxyControls);
 
 import WelcomePage from './reactComponents/WelcomePage'
 
