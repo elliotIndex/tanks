@@ -12,14 +12,9 @@
 // { position } (or) { rotation }
 const { DOWNLOAD_PERIOD, TANK_RADIUS } = require('../../simulation/constants');
 
-require('./lib/Object.polyfill.js');
-
 var SocketPeer = require('socketpeer');
 
 var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
-if (typeof process !== 'undefined') {
-  PROXY_URL = process.env.npm_package_config_proxy_url || PROXY_URL;
-}
 
 /**
  * Client controls via WebRTC datastream, for A-Frame.
@@ -60,6 +55,7 @@ if (typeof process !== 'undefined') {
     this.state = {};
 
     this.interval = 0;
+    this.count = 0;
 
     if (this.data.pairCode) {
       this.setupConnection(this.data.pairCode);
@@ -88,6 +84,7 @@ if (typeof process !== 'undefined') {
     this.el.emit('proxycontrols.paircode', {pairCode: pairCode});
 
     peer.on('connect', this.onConnection.bind(this));
+    peer.on('upgrade', this.onUpgrade.bind(this));
     peer.on('disconnect', this.onDisconnect.bind(this));
     peer.on('error', function (error) {
       if (data.debug) console.error('peer:error(%s)', error.message);
@@ -102,7 +99,11 @@ if (typeof process !== 'undefined') {
 
   onConnection: function () {
     if (this.data.debug) console.info('peer:connection()');
-    this.interval = setInterval(this.sendUpdate, 100);
+  },
+
+  onUpgrade: function () {
+    if (this.data.debug) console.info('peer:upgrade()');
+    this.interval = setInterval(this.sendUpdate, DOWNLOAD_PERIOD);
   },
 
   onDisconnect: function () {
@@ -112,7 +113,10 @@ if (typeof process !== 'undefined') {
 
   sendUpdate: function () {
     // this.peer.send(this.el.getAttribute(this.data.attribute));
-    this.peer.send({ 'oh hi': 'there' });
+    this.count = Math.random();
+    // this.peer;
+    // console.log('sending!', this.count, this.peer);
+    this.peer.send({ 'oh hi': this.count });
   },
 
   /*******************************************************************
@@ -127,4 +131,4 @@ if (typeof process !== 'undefined') {
     if (this.peer) this.peer.destroy();
     if (this.overlay) this.overlay.destroy();
   }
-};
+});

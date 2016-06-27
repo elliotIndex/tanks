@@ -15,6 +15,7 @@ require('./aframeComponents/socket-controls');
 require('./aframeComponents/forward-movement-controls');
 require('./aframeComponents/death-listener');
 require('./aframeComponents/proxy-controller');
+require('./aframeComponents/proxy-controlled');
 
 // var ProxyControls = require('aframe-proxy-controls');
 // AFRAME.registerComponent('proxy-controls', ProxyControls);

@@ -32,7 +32,8 @@ class PlayerTank extends React.Component {
         position={this.props.position}
         kinematic-body={`radius: ${this.radius}; height: ${this.radius};`}
         characterId={this.props.characterId}
-        socket-controls={`characterId: ${this.props.characterId}; simulationAttribute: position`}>
+        proxy-controlled={`pairCode: charmander${this.props.characterId}; debug: false;`}>
+        {/*socket-controls={`characterId: ${this.props.characterId}; simulationAttribute: position`}>*/}
           <TankBody
           characterId={this.props.characterId}
           position={this.props.position}

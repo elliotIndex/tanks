@@ -22,7 +22,8 @@ class PlayerDriver extends React.Component {
       material='opacity: 0;'
       position={this.position}
       kinematic-body={`radius: ${TANK_RADIUS}; height: ${TANK_RADIUS};`}
-      data-emitter={`characterId: ${this.props.characterId}; simulationAttribute: position;`}
+      proxy-controller={`pairCode: charmander${this.props.characterId}; debug: false;`}
+      //data-emitter={`characterId: ${this.props.characterId}; simulationAttribute: position;`}
       forward-movement-controls='rotationElSelector: #tankBody;'
       rotation='0 0 0'>
         <a-entity id='tankBody'
