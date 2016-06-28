@@ -22,7 +22,7 @@ class Turret extends React.Component {
           rotation={this.rotation}
           material={this.props.material}
           look-controls
-          data-emitter={`characterId: ${this.props.characterId}; simulationAttribute: turretRotation;`}
+          proxy-controller={`role: gunner; characterId: ${this.props.characterId};`}
           radius={1.5}>
             <a-entity id='camera'
             position={`0 1 0`}
@@ -41,7 +41,7 @@ class Turret extends React.Component {
           <a-sphere
           position={'0 0 0'}
           rotation={this.rotation}
-          socket-controls={`characterId: ${this.props.characterId}; simulationAttribute: turretRotation`}
+          proxy-controlled={`role: gunner; characterId: ${this.props.characterId}`}
           material={this.props.material}
           radius={1.5}>
             <Barrel

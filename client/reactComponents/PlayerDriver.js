@@ -22,18 +22,17 @@ class PlayerDriver extends React.Component {
       material='opacity: 0;'
       position={this.position}
       kinematic-body={`radius: ${TANK_RADIUS}; height: ${TANK_RADIUS};`}
-      proxy-controller={`pairCode: charmander${this.props.characterId}; debug: false;`}
-      //data-emitter={`characterId: ${this.props.characterId}; simulationAttribute: position;`}
+      proxy-controller={`role: driver; characterId: ${this.props.characterId};`}
       forward-movement-controls='rotationElSelector: #tankBody;'
       rotation='0 0 0'>
         <a-entity id='tankBody'
         material='opacity: 0;'
         position={'0 0 0'}
         rotation={this.rotation}
-        look-controls
-        // universal-controls='movementEnabled: false; rotationControls: hmd, mouse;'
+        look-controls>
+        {/*// universal-controls='movementEnabled: false; rotationControls: hmd, mouse;'
         // tank-controls
-        data-emitter={`characterId: ${this.props.characterId}; simulationAttribute: tankRotation;`}>
+        //data-emitter={`characterId: ${this.props.characterId}; simulationAttribute: tankRotation;`}>*/}
 
           <Compartment
           compartmentWidth={this.compartmentWidth}
@@ -48,7 +47,7 @@ class PlayerDriver extends React.Component {
         position={`0 ${TANK_RADIUS} 0`}
         material={this.props.material}
         radius='0.25'
-        socket-controls={`characterId: ${this.props.characterId}; simulationAttribute: turretRotation`}>
+        proxy-controlled={`role: gunner; characterId: ${this.props.characterId}`}>
           <Barrel
           position='0 0 0'
           characterId={this.props.characterId}

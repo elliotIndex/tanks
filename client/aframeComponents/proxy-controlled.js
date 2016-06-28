@@ -1,12 +1,7 @@
-// has one pair code:
-  // '<this role>_<this characterId>-<this playerId>'
-
-// use the onEvent() method of proxy-controls (probably have to re-write proxy controls)
-//
-
-var SocketPeer = require('socketpeer');
-
-var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
+const SocketPeer = require('socketpeer');
+const { lerpRotations, getVelocity } = require('../../math/vectorHelpers');
+const { DOWNLOAD_PERIOD, TANK_RADIUS } = require('../../simulation/constants');
+const PROXY_URL = 'https://proxy-controls.donmccurdy.com';
 
 /**
  * Client controls via WebRTC datastream, for A-Frame.
@@ -28,9 +23,10 @@ var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
     enabled: { default: true },
     debug: { default: false },
 
+    role: { default: 'driver' },
+    characterId: { default: '0' },
     // WebRTC/WebSocket configuration.
     proxyUrl: { default: PROXY_URL },
-    pairCode: { default: '' },
   },
 
   /*******************************************************************
@@ -43,34 +39,71 @@ var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
   init: function () {
     /** @type {SocketPeer} WebRTC/WebSocket connection. */
     this.peer = null;
+    this.pairCode = this.generatePairCode();
 
-    /** @type {Object} State tracking, keyed by event type. */
-    this.state = {};
-
-    if (this.data.pairCode) {
-      this.setupConnection(this.data.pairCode);
+    if (this.pairCode) {
+      this.setupConnection(this.pairCode);
     }
+
+    // Motion simulation
+    this.lastUpdateTime = 0;
+    this.updateWaiting = false;
+    this.updateRate = DOWNLOAD_PERIOD;
+
+    if (this.data.role === 'driver') {
+      this.previousPosition = new THREE.Vector3();
+      this.currentPosition = new THREE.Vector3();
+      this.nextPosition = new THREE.Vector3();
+    }
+
+    this.previousRotation = new THREE.Vector3();
+    this.currentRotation = new THREE.Vector3();
+    this.nextRotation = new THREE.Vector3();
   },
 
-  tick: function () {},
+  tick: function (t) {
+    if(this.updateWaiting) {
+      this.updateRate = (t - this.lastUpdateTime);
+      this.lastUpdateTime = t;
+      this.updateWaiting = false;
+    }
+
+    const alpha = Math.min(1, (t - this.lastUpdateTime) / this.updateRate);
+
+    lerpRotations(this.currentRotation, this.previousRotation, this.nextRotation, alpha);
+
+    if (this.data.role === 'driver') {
+      this.currentPosition.lerpVectors(this.previousPosition, this.nextPosition, alpha);
+      this.currentPosition.y = TANK_RADIUS;
+      this.el.setAttribute('position', this.currentPosition);
+      this.el.children[0].setAttribute('rotation', this.currentRotation);
+    } else {
+      this.el.setAttribute('rotation', this.currentRotation);
+    }
+
+  },
 
   /*******************************************************************
   * WebRTC Connection
   */
 
+  generatePairCode() {
+    return `${this.data.role}${this.data.characterId}_${window.role}${window.characterId}`
+  },
+
   setupConnection: function (pairCode) {
-    var data = this.data;
+    const data = this.data;
 
     if (!data.proxyUrl) {
       console.error('proxy-controls "proxyUrl" property not found.');
       return;
     }
 
-    var peer = this.peer = new SocketPeer({
+    const peer = this.peer = new SocketPeer({
       pairCode: pairCode,
       url: data.proxyUrl + '/socketpeer/'
     });
-    window.peer = peer;
+
     this.el.emit('proxycontrols.paircode', {pairCode: pairCode});
 
     peer.on('connect', this.onConnection.bind(this));
@@ -96,22 +129,24 @@ var PROXY_URL = 'https://proxy-controls.donmccurdy.com';
     this.peer.on('data', this.onEvent.bind(this));
   },
 
+  onDisconnect: function () {
+    if (this.data.debug) console.info('peer:disconnect()');
+  },
+
   /*******************************************************************
   * Remote event propagation
   */
 
   onEvent: function (event) {
-    console.log('===============================================================');
-    console.log('event happened', event);
-    if (!this.data.enabled) {
-      return;
-    } else if (!event.type) {
-      if (this.data.debug) console.warn('Missing event type.');
-    } else if (event.type === 'ping') {
-      this.peer.send(event);
+    this.updateWaiting = true;
+    if (this.data.role === 'driver') {
+      this.previousRotation = this.el.children[0].getAttribute('rotation');
+      this.previousPosition = this.el.getAttribute('position');
+      this.nextPosition = event.position;
     } else {
-      this.state[event.type] = event.state;
+      this.previousRotation = this.el.getAttribute('rotation');
     }
+    this.nextRotation = event.rotation;
   },
 
   /*******************************************************************

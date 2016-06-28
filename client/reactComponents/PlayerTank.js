@@ -16,6 +16,8 @@ class PlayerTank extends React.Component {
   }
 
   render () {
+    window.characterId = this.props.characterId;  // for proxy-controlled
+    window.role = this.props.role;         // for proxy-controlled
     if(this.props.role === 'driver') {
       return (
         <PlayerDriver
@@ -32,8 +34,7 @@ class PlayerTank extends React.Component {
         position={this.props.position}
         kinematic-body={`radius: ${this.radius}; height: ${this.radius};`}
         characterId={this.props.characterId}
-        proxy-controlled={`pairCode: charmander${this.props.characterId}; debug: false;`}>
-        {/*socket-controls={`characterId: ${this.props.characterId}; simulationAttribute: position`}>*/}
+        proxy-controlled={`role: driver; characterId: ${this.props.characterId}`}>
           <TankBody
           characterId={this.props.characterId}
           position={this.props.position}

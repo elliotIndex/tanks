@@ -20,8 +20,7 @@ class EnemyTank extends React.Component {
       position={this.props.position}
       kinematic-body={`radius: ${this.radius}; height: ${this.radius}`}
       characterId={this.props.characterId}
-      //proxy-controlled={`pairCode: charmande${this.props.characterId}; debug: true;`}>
-      socket-controls={`characterId: ${this.props.characterId}; simulationAttribute: position`}>
+      proxy-controlled={`role: driver; characterId: ${this.props.characterId}`}>
         <TankBody
         radius={this.radius}
         material={this.props.material}
